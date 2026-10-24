@@ -1,0 +1,6 @@
+build/
+.vscode/
+.idea/
+*.pro.user
+*_autogen/
+.DS_Store
