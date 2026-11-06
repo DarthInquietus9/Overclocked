@@ -1,0 +1,18 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/nishanth/Overclocked/build_release/cmake_install.cmake",
+		"/home/nishanth/Overclocked/build_release/_deps/llama-build/cmake_install.cmake",
+		"/home/nishanth/Overclocked/build_release/_deps/llama-build/ggml/cmake_install.cmake",
+		"/home/nishanth/Overclocked/build_release/_deps/llama-build/ggml/src/cmake_install.cmake",
+		"/home/nishanth/Overclocked/build_release/_deps/llama-build/ggml/src/ggml-cpu/cmake_install.cmake",
+		"/home/nishanth/Overclocked/build_release/_deps/llama-build/src/cmake_install.cmake",
+		"/home/nishanth/Overclocked/build_release/_deps/llama-build/vendor/cmake_install.cmake",
+		"/home/nishanth/Overclocked/build_release/_deps/llama-build/vendor/hash/cmake_install.cmake",
+		"/home/nishanth/Overclocked/build_release/_deps/llama-build/vendor/miniaudio/cmake_install.cmake",
+		"/home/nishanth/Overclocked/build_release/_deps/llama-build/vendor/nlohmann/cmake_install.cmake",
+		"/home/nishanth/Overclocked/build_release/_deps/llama-build/vendor/sheredom/cmake_install.cmake",
+		"/home/nishanth/Overclocked/build_release/_deps/llama-build/vendor/stb/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

@@ -10,12 +10,21 @@
 #include <QTextEdit>
 #include <QLabel>
 #include <QHeaderView>
-#include "SQLEngine.hpp"
+#include <QString>
+#include <QByteArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include "SQLSecurityGuard.hpp"
+#include "LlamaEngine.hpp"
+#include "ResilienceEngine.hpp"
+#include "DatabaseManager.hpp"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
 private:
-    SQLEngine sqlEngine;
+    SQLSecurityGuard securityGuard;
+    LlamaEngine llamaEngine; // The missing puzzle piece, finally invited to the party
     QLineEdit* promptInput;
     QPushButton* runButton;
     QPushButton* toggleSqlButton;
@@ -26,7 +35,7 @@ private:
 
 public:
     explicit MainWindow(QWidget *parent = nullptr) : QMainWindow(parent) {
-        setWindowTitle("Overclocked — SQL in Plain English Engine");
+        setWindowTitle("Pragma Once");
         resize(950, 700);
 
         // --- MODERN DARK MODE STYLESHEET ---
@@ -111,8 +120,6 @@ public:
 
         setCentralWidget(centralWidget);
 
-        sqlEngine.initDatabase();
-
         // Connect Handlers
         connect(runButton, &QPushButton::clicked, this, &MainWindow::handleQueryExecution);
         connect(promptInput, &QLineEdit::returnPressed, this, &MainWindow::handleQueryExecution);
@@ -133,7 +140,7 @@ private slots:
         runButton->setEnabled(false);
         runButton->setText("Processing...");
 
-        sqlEngine.translateAndExecute(text, [this](QueryResult res) {
+        llamaEngine.translateAndExecute(text, [this](QueryResult res) {
             runButton->setEnabled(true);
             runButton->setText("Execute Query");
 
@@ -143,12 +150,21 @@ private slots:
                 return;
             }
 
-            // Populates the SQL panel silently in the background
+            // --- SECURITY GUARD VALIDATION ---
+            auto validation = securityGuard.validateQuery(res.generatedSQL.toStdString());
+            if (!validation.isSafe) {
+                sqlDisplay->setText(QString("Blocked by Security Guard:\n%1\n\nGenerated SQL was:\n%2")
+                                        .arg(QString::fromStdString(validation.reason))
+                                        .arg(res.generatedSQL));
+                resultTable->clear();
+                return;
+            }
+
+            // Populates the SQL panel and table if safe
             sqlDisplay->setText(QString("SQL Query:\n%1\n\nExplanation:\n%2")
                                     .arg(res.generatedSQL)
                                     .arg(res.explanation));
 
-            // Immediately updates the visual table output
             resultTable->clear();
             resultTable->setColumnCount(res.headers.size());
             resultTable->setHorizontalHeaderLabels(res.headers);

@@ -1,6 +1,4 @@
 build/
-.vscode/
-.idea/
-*.pro.user
-*_autogen/
+*.tar.gz
+*.gguf
 .DS_Store
