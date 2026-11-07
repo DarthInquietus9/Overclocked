@@ -28,7 +28,22 @@ jobs:
         with:
           version: '6.7.*'
           cache: true
+      - name: Install libpqxx (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpqxx-dev pkg-config
 
+      - name: Install libpqxx (macOS)
+        if: runner.os == 'macOS'
+        run: brew install libpqxx pkg-config
+
+      - name: Install libpqxx (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          vcpkg install libpqxx:x64-windows
+          choco install pkgconfiglite -y
       - name: Configure CMake
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
