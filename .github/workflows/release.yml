@@ -20,6 +20,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.7.*'
+          cache: true
 
       - name: Configure CMake
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release
