@@ -39,12 +39,15 @@ jobs:
         run: |
           brew install libpq libpqxx pkg-config
           echo "PKG_CONFIG_PATH=$(brew --prefix libpq)/lib/pkgconfig:$(brew --prefix libpqxx)/lib/pkgconfig" >> $GITHUB_ENV
-      - name: Install libpqxx (Windows)
+            - name: Install libpqxx (Windows)
         if: runner.os == 'Windows'
-        shell: bash
+        shell: pwsh
         run: |
           vcpkg install libpqxx:x64-windows
-          choco install pkgconfiglite -y
+          choco install pkgconfiglite -y --no-progress
+          $root = "$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows"
+          "PKG_CONFIG_PATH=$root/lib/pkgconfig" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "CMAKE_PREFIX_PATH=$root" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
       - name: Configure CMake
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
