@@ -24,7 +24,7 @@ jobs:
         with:
           submodules: recursive
 
-            - name: Set up Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -47,17 +47,6 @@ jobs:
           brew install libpq libpqxx pkg-config
           echo "PKG_CONFIG_PATH=$(brew --prefix libpq)/lib/pkgconfig:$(brew --prefix libpqxx)/lib/pkgconfig" >> $GITHUB_ENV
 
-      - name: Install libpqxx (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          vcpkg install libpqxx:x64-windows
-          choco install pkgconfiglite -y --no-progress
-          $root = "$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows"
-          Get-ChildItem "$root/lib/pkgconfig"
-            "PKG_CONFIG_PATH=$root/lib/pkgconfig;$root/share/pkgconfig" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          "CMAKE_PREFIX_PATH=$root" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-
       - name: Configure CMake
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
@@ -72,9 +61,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: packages-${{ matrix.os }}
-          path: |
-            build/PragmaOnce-*.tar.gz
-            build/PragmaOnce-*.msi
+          path: build/PragmaOnce-*.tar.gz
 
   release:
     needs: build
