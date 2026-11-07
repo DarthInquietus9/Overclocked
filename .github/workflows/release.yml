@@ -1,0 +1,44 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: PragmaOnce-0.1.1-Linux.tar.gz
+          - os: macos-latest
+            artifact_name: PragmaOnce-0.1.1-Darwin.tar.gz
+          - os: windows-latest
+            artifact_name: PragmaOnce-0.1.1-win64.msi
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Project
+        run: cmake --build build --config Release
+
+      - name: Package with CPack
+        run: cpack --config build/CPackConfig.cmake
+        working-directory: build
+        
+      # (Optional step to normalize artifact names if CPack names them differently)
+      
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/PragmaOnce*
