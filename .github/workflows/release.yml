@@ -1,23 +1,22 @@
 name: Build and Release
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - 'v*'
+
+permissions:
+  contents: write
 
 jobs:
   build:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-latest
-            artifact_name: PragmaOnce-0.1.1-Linux.tar.gz
-          - os: macos-latest
-            artifact_name: PragmaOnce-0.1.1-Darwin.tar.gz
-          - os: windows-latest
-            artifact_name: PragmaOnce-0.1.1-win64.msi
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -29,16 +28,29 @@ jobs:
         run: cmake --build build --config Release
 
       - name: Package with CPack
-        run: cpack --config build/CPackConfig.cmake
+        run: cpack -C Release --config CPackConfig.cmake
         working-directory: build
-        
-      # (Optional step to normalize artifact names if CPack names them differently)
-      
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-${{ matrix.os }}
+          path: |
+            build/PragmaOnce-*.tar.gz
+            build/PragmaOnce-*.msi
+
   release:
     needs: build
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
     steps:
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+      - name: Download packages
+        uses: actions/download-artifact@v4
         with:
-          files: build/PragmaOnce*
+          path: dist
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
